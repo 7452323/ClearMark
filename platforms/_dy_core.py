@@ -719,7 +719,7 @@ class DouyinWebCrawler:
         }
 
     async def get_aweme_id(self, url: str) -> str:
-        async with httpx.AsyncClient(proxy=self.proxy, timeout=10) as client:
+        async with httpx.AsyncClient(proxy=self.proxy, timeout=5) as client:
             response = await client.get(url, follow_redirects=True)
             response.raise_for_status()
             response_url = str(response.url)
