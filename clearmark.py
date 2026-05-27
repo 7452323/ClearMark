@@ -71,13 +71,23 @@ class TelegramBot:
         path = f'/tmp/clearmark_{int(time.time())}{ext}'
         
         headers = {'User-Agent': 'Mozilla/5.0', **(extra_headers or {})}
-        async with httpx.AsyncClient(timeout=30, follow_redirects=True) as c:
-            r = await c.get(url, headers=headers)
-            if r.status_code != 200:
-                log.error(f"下载失败: {r.status_code}")
-                return False
-            with open(path, 'wb') as f:
-                f.write(r.content)
+        async with httpx.AsyncClient(timeout=60, follow_redirects=True) as c:
+            async with c.stream('GET', url, headers=headers) as r:
+                if r.status_code != 200:
+                    log.error(f"下载失败: {r.status_code}")
+                    return False
+                total = int(r.headers.get('content-length', 0))
+                downloaded = 0
+                with open(path, 'wb') as f:
+                    async for chunk in r.aiter_bytes():
+                        f.write(chunk)
+                        downloaded += len(chunk)
+                        if total > 0:
+                            pct = downloaded * 100 // total
+                            mb_dl = downloaded / 1024 / 1024
+                            mb_total = total / 1024 / 1024
+                            print(f'   📥 {pct}% ({mb_dl:.1f}/{mb_total:.1f}MB)', end='', flush=True)
+                if total > 0: print()
         
         size_mb = os.path.getsize(path) / 1024 / 1024
         if size_mb > 50:
