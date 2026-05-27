@@ -1,37 +1,71 @@
-"""小红书解析器 - 完全独立"""
-import asyncio, os, sys
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-try:
-    from xhs import XHSAPI
-    HAS_XHS = True
-except: HAS_XHS = False
-
-
-class ParseResult:
-    def __init__(self, platform: str, url: str):
-        self.platform = platform; self.source_url = url
-        self.success = False; self.title = ''
-        self.video_url = None; self.images = []
-        self.cover_url = None; self.error = ''; self.method = ''
+"""小红书解析器 - 纯浏览器模式，100%原创"""
+from playwright.async_api import async_playwright
+import re
 
 
 class XiaohongshuParser:
-    def __init__(self): self.name = 'xiaohongshu'
+    """小红书解析器：浏览器加载笔记→提取视频/图片"""
     
-    async def parse(self, url: str):
-        result = ParseResult('xiaohongshu', url)
-        try:
-            if not HAS_XHS: raise RuntimeError('小红书模块不可用')
-            xhs = XHSAPI(cookie={})
-            post = await xhs.extract(url)
-            result.success = True
-            result.title = post.title or ''
-            for media in (post.media or []):
-                if media.type in ('video','livephoto'):
-                    result.video_url = media.url
-                    if media.thumb_url: result.cover_url = media.thumb_url
-                else: result.images.append(media.url)
-            result.method = 'browser'
-        except Exception as e:
-            result.error = str(e)
+    async def parse(self, url: str) -> dict:
+        result = {
+            'success': False, 'title': '', 'video_url': None,
+            'images': [], 'cover_url': None, 'error': ''
+        }
+        
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=True, args=['--no-sandbox'])
+            ctx = await browser.new_context(
+                user_agent='Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148',
+                viewport={'width': 390, 'height': 844}, is_mobile=True, locale='zh-CN')
+            page = await ctx.new_page()
+            
+            # 监听媒体响应
+            video_urls, image_urls = [], []
+            def capture_media(resp):
+                ct = resp.headers.get('content-type', '')
+                u = resp.url
+                if 'video' in ct and 'xhscdn' in u:
+                    video_urls.append(u)
+                elif 'image' in ct and 'xhscdn' in u:
+                    image_urls.append(u)
+            page.on('response', capture_media)
+            
+            await page.goto(url, timeout=20000, wait_until='commit')
+            await page.wait_for_timeout(6000)
+            
+            # 标题
+            try:
+                el = await page.query_selector('title')
+                if el: result['title'] = (await el.inner_text())[:200]
+            except: pass
+            
+            # video元素
+            videos = await page.query_selector_all('video')
+            for v in videos:
+                src = await v.get_attribute('src')
+                if src:
+                    result['video_url'] = src
+                    result['success'] = True
+                    break
+            
+            # 网页截图/封面
+            for m in await page.query_selector_all('meta[property="og:image"]'):
+                c = await m.get_attribute('content')
+                if c and not result['cover_url']:
+                    result['cover_url'] = c
+                    break
+            
+            # 捕获的媒体
+            if not result['video_url'] and video_urls:
+                result['video_url'] = video_urls[-1]
+                result['success'] = True
+            if not result['images'] and image_urls:
+                result['images'] = image_urls[:9]
+                if not result['cover_url']:
+                    result['cover_url'] = image_urls[0]
+            if not result['success']:
+                result['success'] = bool(result['video_url'] or result['images'])
+            
+            await browser.close()
+        
         return result

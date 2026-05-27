@@ -1,86 +1,68 @@
-"""抖音解析器 - 完全独立，无需外部依赖"""
-import asyncio, os, re, sys
-
-# 加载本地抖音引擎
-_here = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, _here)
-from _douyin_engine import DouyinWebCrawler
-
-
-class ParseResult:
-    def __init__(self, platform: str, url: str):
-        self.platform = platform; self.source_url = url
-        self.success = False; self.title = ''
-        self.video_url = None; self.images = []
-        self.cover_url = None; self.error = ''; self.method = ''
+"""抖音解析器 - 纯浏览器模式，100%原创"""
+from playwright.async_api import async_playwright
+import re
 
 
 class DouyinParser:
-    def __init__(self): self.name = 'douyin'
+    """抖音解析器：浏览器加载页面→提取video元素→playwm→play去水印
     
-    async def parse(self, url: str):
-        result = ParseResult('douyin', url)
-        try:
-            await self._algorithm(url, result)
-            result.method = 'algorithm'
-        except Exception as e:
-            result.error = str(e)
-            try:
-                await self._browser(url, result)
-                result.method = 'browser'
-            except Exception as e2:
-                result.error = f"{e}; browser: {e2}"
-        return result
+    原理：抖音分享页的video元素src含playwm参数，
+    改为play就是无水印版本。无需任何签名算法。
+    """
     
-    async def _algorithm(self, url, result):
-        from playwright.async_api import async_playwright
+    async def parse(self, url: str) -> dict:
+        result = {
+            'success': False, 'title': '', 'video_url': None,
+            'images': [], 'cover_url': None, 'error': ''
+        }
+        
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True, args=['--no-sandbox'])
             ctx = await browser.new_context(
-                ua='Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/130.0.6728.40',
-                viewport={'width':390,'height':844}, is_mobile=True, locale='zh-CN')
+                user_agent='Mozilla/5.0 (Linux; Android 14; Pixel 8 Pro) AppleWebKit/537.36 Chrome/130.0.6728.40 Mobile Safari/537.36',
+                viewport={'width': 390, 'height': 844}, is_mobile=True, locale='zh-CN')
             page = await ctx.new_page()
-            await page.goto(url, timeout=15000, wait_until='commit')
-            await page.wait_for_timeout(3000)
-            cookies = await ctx.cookies()
-            await browser.close()
-        
-        cd = {c['name']: c['value'] for c in cookies}
-        crawler = DouyinWebCrawler(cookie=cd, proxy=None)
-        aweme_id = await crawler.get_aweme_id(url)
-        data = await crawler.fetch_one_video(aweme_id)
-        detail = data.get('aweme_detail', data)
-        
-        result.title = detail.get('desc', ''); result.success = True
-        video = detail.get('video', {})
-        brs = video.get('bit_rate', [])
-        if brs:
-            best = max(brs, key=lambda x: x.get('play_addr',{}).get('width',0)*x.get('play_addr',{}).get('height',0))
-            urls = best.get('play_addr',{}).get('url_list',[])
-            if urls:
-                result.video_url = urls[0].replace('playwm','play')
-        cover = video.get('cover',{}).get('url_list',[])
-        if cover: result.cover_url = cover[-1]
-        images = detail.get('images',[]) or [i.get('display_image',{}) for i in detail.get('image_post_info',{}).get('images',[])]
-        if images: result.images = [i['url_list'][-1] for i in images if i.get('url_list')]
-    
-    async def _browser(self, url, result):
-        from playwright.async_api import async_playwright
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True, args=['--no-sandbox'])
-            ctx = await browser.new_context(ua='Mozilla/5.0 Chrome/130',
-                viewport={'width':390,'height':844}, is_mobile=True)
-            page = await ctx.new_page()
-            video_srcs = []
-            def on_resp(resp):
-                ct = resp.headers.get('content-type','')
-                if 'video/mp4' in ct and 'douyin' in resp.url.lower(): video_srcs.append(resp.url)
-            page.on('response', on_resp)
+            
+            # 监听封面图片
+            def capture_cover(resp):
+                ct = resp.headers.get('content-type', '')
+                u = resp.url
+                if 'image' in ct and 'cover' in u.lower() and not result['cover_url']:
+                    result['cover_url'] = u
+            page.on('response', capture_cover)
+            
             await page.goto(url, timeout=20000, wait_until='commit')
-            await page.wait_for_timeout(8000)
+            await page.wait_for_timeout(5000)
+            
+            # 提取标题
             try:
                 el = await page.query_selector('title')
-                if el: result.title = await el.inner_text()
+                if el: result['title'] = (await el.inner_text())[:200]
             except: pass
-            if video_srcs: result.video_url = video_srcs[0]; result.success = True
+            
+            # 提取视频URL - 从video元素的src
+            videos = await page.query_selector_all('video')
+            for v in videos:
+                src = await v.get_attribute('src')
+                if src and 'playwm' in src:
+                    # 相对路径转绝对
+                    if src.startswith('/'):
+                        src = f'https://www.douyin.com{src}'
+                    # playwm → play 去水印
+                    result['video_url'] = src.replace('playwm', 'play')
+                    result['success'] = True
+                    break
+            
+            if not result['video_url']:
+                # 尝试从页面内嵌数据提取
+                content = await page.content()
+                # 搜索 video_id
+                vid_match = re.search(r'video_id["\':]\s*["\']([^"\']+)', content)
+                if vid_match:
+                    vid = vid_match.group(1)
+                    result['video_url'] = f'https://www.douyin.com/aweme/v1/play/?video_id={vid}&ratio=720p&line=0'
+                    result['success'] = True
+            
             await browser.close()
+        
+        return result

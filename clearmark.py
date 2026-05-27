@@ -137,31 +137,30 @@ async def main():
     parser = import_parser(platform)
     result = await parser.parse(url)
     
-    if not result.success:
-        log.error(f"❌ 解析失败: {result.error[:200]}")
+    if not result.get('success'):
+        log.error(f"❌ 解析失败: {result.get('error', '未知错误')[:200]}")
         sys.exit(1)
     
-    log.info(f"📝 {result.title or '(无标题)'}")
-    log.info(f"⚡ 模式: {result.method}")
+    log.info(f"📝 {result.get('title', '(无标题)')}")
     
     if auto_send or 'BOT_TOKEN' in os.environ:
         bot = TelegramBot()
-        caption = f"{result.title[:100]}\n🐣 ClearMark" if result.title else "🐣 ClearMark"
+        caption = f"{result.get('title', '')[:100]}\n🐣 ClearMark"
         
-        if result.video_url:
+        if result.get('video_url'):
             log.info("📥 下载并发送视频...")
-            ok = await bot.download_and_send(result.video_url, caption,
+            ok = await bot.download_and_send(result['video_url'], caption,
                 {'Referer': f'https://www.{platform}.com/'})
             log.info("✅ 已发送到Telegram" if ok else "❌ 发送失败")
         
-        if result.images:
-            for i, img_url in enumerate(result.images[:5]):
+        if result.get('images'):
+            for i, img_url in enumerate(result['images'][:5]):
                 log.info(f"📥 发送图片 {i+1}...")
                 await bot.download_and_send(img_url, caption)
     else:
-        if result.video_url: print(f"🎬 视频: {result.video_url}")
-        if result.images:    print(f"📸 图片({len(result.images)}张)")
-        if result.cover_url: print(f"🖼️ 封面: {result.cover_url}")
+        if result.get('video_url'): print(f"🎬 视频: {result['video_url']}")
+        if result.get('images'):    print(f"📸 图片({len(result['images'])}张)")
+        if result.get('cover_url'): print(f"🖼️ 封面: {result['cover_url']}")
 
 
 if __name__ == '__main__':
