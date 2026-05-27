@@ -1,7 +1,9 @@
-httpx>=0.27.0
-playwright>=1.40.0
-gmssl>=3.2.0
-instaloader>=4.11
-beautifulsoup4>=4.12
-lxml>=5.0
-requests>=2.31
+# 核心依赖
+httpx>=0.27.0          # HTTP 请求
+playwright>=1.40.0     # 浏览器自动化（抖音/小红书）
+gmssl>=3.2.0           # SM3 国密算法（抖音A-Bogus签名）
+instaloader>=4.11      # Instagram API
+beautifulsoup4>=4.12   # HTML 解析
+lxml>=5.0              # XML/HTML 解析
+cryptography>=41.0     # Cookie 加密（AES-256 Fernet）
+requests>=2.31         # HTTP（instaloader依赖）
