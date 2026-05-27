@@ -20,6 +20,7 @@ ROUTES = {
     'xiaohongshu': [r'xiaohongshu\.com', r'xhslink\.com'],
     'twitter':    [r'twitter\.com', r'x\.com/'],
     'instagram':  [r'instagram\.com'],
+    'bilibili':   [r'bilibili\.com', r'b23\.tv'],
     'tiktok':     [r'tiktok\.com'],
     'bilibili':   [r'bilibili\.com', r'b23\.tv'],
     'kuaishou':   [r'kuaishou\.com'],
@@ -86,7 +87,8 @@ class TelegramBot:
                             pct = downloaded * 100 // total
                             mb_dl = downloaded / 1024 / 1024
                             mb_total = total / 1024 / 1024
-                            print(f'   📥 {pct}% ({mb_dl:.1f}/{mb_total:.1f}MB)', end='', flush=True)
+                            print(f'
+   📥 {pct}% ({mb_dl:.1f}/{mb_total:.1f}MB)', end='', flush=True)
                 if total > 0: print()
         
         size_mb = os.path.getsize(path) / 1024 / 1024
