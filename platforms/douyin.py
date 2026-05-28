@@ -1,7 +1,7 @@
 """抖音解析器 - 零浏览器 + 持久连接池"""
 import asyncio, re, httpx
 from urllib.parse import urlencode, quote
-from _dy_signer import DouyinSigner
+from signer import DouyinSigner
 
 
 class DouyinParser:
