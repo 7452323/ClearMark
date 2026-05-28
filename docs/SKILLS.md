@@ -1,0 +1,181 @@
+# 🐣 宝宝技能清单
+
+生成时间: 2026-05-28 08:29:09 CST
+
+## 工作区技能 (53个)
+
+- **algorithm-reverse**
+  - JS逆向算法还原统一技能。面向Web/JS逆向中的签名还原、混合加密拆解、Cookie/Header签名、JSVMP/VMP字节码还原、Wasm协议分析、验证码风控参数还原。统一闭环：请求→writer→builder→entry→source，覆盖6类题型分类、5层检查点、Python复现规范、验证码5线拆分与工程化产出。
+- **android-reverse-engineering**
+  - Android应用逆向工程全流程。APK反编译、smali分析、Frida动态Hook、JNI/SO分析、脱壳、混淆对抗。TRIGGER when: 用户需要逆向分析Android APK
+- **anti-debug**
+  - JS反调试对抗技能：识别并绕过4类反调试手段（无限debugger、DevTools检测、代码完整性校验、定时器检测）。双层架构：CDP层优先 + JS层fallback。用法: /anti-debug [文件路径]
+- **anti-debugging-techniques**
+  - >-
+- **api-tester**
+  - Perform structured HTTP/HTTPS requests (GET, POST, PUT, DELETE) with custom headers and JSON body support. Use for API testing, health checks, or interacting with REST services programmatically without relying on curl.
+- **ast-deobfuscation**
+  - |
+- **audio-transcriber-pro**
+  - Transform audio recordings into professional Markdown documentation with intelligent summaries using LLM integration"
+- **baby-novel-writer**
+  - 宝宝专业小说写作技能 - 支持长篇连载、各种题材、支持高尺度情色描写
+- **baby-shrimp-persona**
+  - 宝宝专属人格 - 可爱调皮模式 + 超级放荡风骚模式
+- **baobao-agent**
+  - 宝宝专属智能体架构。双脑协作（分析+执行分离）、煮沸湖泊（完整优先）、先查后建（搜索再动手）、异步优先（不阻塞主线程）、自动进化（每步都学）。适用于：复杂任务分解、多步骤工作流、持续学习和自我优化场景。触发词：帮我分析、做这个项目、写个方案、优化流程。
+- **binary-diffing**
+  - 二进制Diffing与补丁分析。对比两个二进制文件的差异，定位修改点，用于1-day漏洞研究和恶意软件变体分析。TRIGGER when: 用户需要对比二进制差异或分析补丁
+- **browser-cdp**
+  - Use this skill when you need to control a Chrome browser via CDP (Chrome DevTools Protocol) to reuse existing login sessions. Covers: launching Chrome in debug mode, opening URLs, waiting for page load, evaluating JavaScript, taking snapshots, and extracting auth tokens. Trigger phrases: browser automation, CDP, agent-browser, 浏览器操作, 操作浏览器, Chrome CDP, 复用登录态, extract token from browser.
+- **camoufox-workflow**
+  - JS逆向工程工作流技能。Node.js/Python接口自动化与签名还原，camoufox-reverse MCP工具索引，6阶段工作流（任务理解→侦察→源码分析→动态验证→算法还原→验证交付），JSVMP双路径分析。来自WhiteNightShadow/hello_js_reverse_skill。
+- **code-obfuscation-deobfuscation**
+  - >-
+- **console-claw-skill**
+  - Use this skill when the user wants ready-to-send Codex prompts for one-shot deployment, linkage, validation, or optimization of a codex-console + CLIProxyAPI + openClaw stack (especially Telegram bot integration). Trigger on requests to replace codex-manager playbooks with codex-console, generate end-to-end install prompts, create acceptance prompts, or refine this deployment playbook into reusable templates.
+- **deobfuscator**
+  - JavaScript/通用代码反混淆解密技能 — 针对 jsjiami/sojson/obfuscator.io/packer/jsfuck/RC4/Base64/ProGuard 等常见加密混淆一键还原
+- **desktop-app-reverse-engineering**
+  - 逆向分析编译后的桌面应用——静态分析二进制文件，提取嵌入的前端资源、AI prompt/工具定义、架构模式。当用户提供桌面应用二进制（.app/.exe/.deb 等）要求逆向分析其实现细节时使用。覆盖 FAT Binary 双 Slice patch 和 Zustand 验证路径分析。
+- **env-patch**
+  - >-
+- **find-crypto-entry**
+  - 定位 JS 加密参数的生成入口（函数位置 + 调用链）。L0 基础层技能——回答'在哪里加密'比'怎么加密'更关键。
+- **har-to-proxy-script**
+  - 从 HAR 抓包数据创建 QuantumultX/Surge 代理自动化脚本——解析 HAR 提取 API 接口、识别认证方式、生成 Env.js 框架脚本（含 getCookie）、测试调通。当用户提供 HAR 文件要求写签到/自动化脚本时触发。
+- **ida-reverse-analysis**
+  - IDA Pro逆向分析技能。静态分析only，支持IDAPython脚本、加密算法识别、DLL导出分析，覆盖恶意软件/固件/游戏/驱动/协议/移动端/漏洞/反混淆等11种分析场景。来自miunasu/IDA-Skill。
+- **ios-app-unlock**
+  - 逆向分析 iOS 原生 Swift 应用的订阅/付费验证机制，通过 Swift5 反射元数据提取类型结构 + 二进制 Patch 解锁 Pro 功能。适用于 SwiftUI + StoreKit 2 架构的已解密 IPA。
+- **javdb-search**
+  - JAV 番号查询 — 搜索番号获取封面、演员、详情等信息
+- **js-reverse-engineering**
+  - JS逆向工作流总纲——编排6阶段全流程（Observe→Capture→Rebuild→Patch→PureExtraction→Port），协调子技能完成端到端逆向。本技能定义'做什么'和'引用谁'，具体实现由子技能承担。TRIGGER when: 用户要求完整的JS逆向流程、端到端签名分析、从观察到迁移的全链路任务。DO NOT TRIGGER when: 只需要某个子能力（如补环境→env-patch、解混淆→ast-deobfuscation、定位入口→find-crypto-entry）。
+- **js-reverse-mcp-integration**
+  - JavaScript逆向MCP集成技能。基于Patchright反检测引擎的JS调试与分析MCP服务器，支持23种工具：反检测浏览器、脚本分析、断点调试、函数追踪、运行时检查、网络分析、脚本注入。来自zhizhuodemao/js-reverse-mcp。
+- **jsvmp-reverse**
+  - JSVMP/VMP 虚拟机逆向通用方法论 — 数据驱动 + AST 反编译双路线，7 种 VM Hook 注入技术，适用于所有 JS 虚拟机保护场景
+- **memory**
+  - Infinite organized memory that complements your agent's built-in memory with unlimited categorized storage.
+- **proactive-agent**
+  - Transform AI agents from task-followers into proactive partners that anticipate needs and continuously improve. Now with WAL Protocol, Working Buffer, Autonomous Crons, and battle-tested patterns. Part of the Hal Stack 🦞
+- **protocol-reverse-engineering**
+  - 网络协议逆向工程。分析未知协议结构、还原消息格式、推断状态机。TRIGGER when: 用户需要逆向分析网络协议或API通信
+- **pyinstaller-reverse**
+  - >
+- **qx-script-master**
+  - Quantumult X / Surge / Loon 全能脚本编写技能。覆盖 5 大脚本类型：Unlock（响应体/分路径/全替换）、Checkin（单账号/多账户/持久化）、Cookie 采集、去广告、面板工具。含 HAR 解析工作流、多平台适配层、Env.js 框架集成、18 种常见模式。安装此技能即可写出任何 QX/Surge/Loon 脚本。
+- **reverse-engineering-general**
+  - 通用逆向工程技能集合。8个逆向子技能：函数符号分析(rev-symbol)、数据结构重建(rev-struct)、Frida Hook脚本(rev-frida)、Unicorn模拟器调试(rev-unicorn-debug)、DEX内存dump脱壳(rev-dex-dumper)、Unity IL2CPP C#符号提取(rev-u3d-dump)、IDAPython脚本参考(rev-idapython)、APK纯Python静态分析(apk-static-analysis)。来自P4nda0s/reverse-skills。
+- **ruishu-reverse**
+  - 瑞数(Ruishu/Rivers Security)反爬防护纯算逆向 — Cookie T 生成 + URL 后缀处理。触发词: 瑞数、ruishu、rivers security、412防护、Cookie T、动态JS反爬、anti-bot bypass。当用户遇到 412 状态码、需要绕过瑞数反爬、或提到 $_ts.cd / $_ts.nsd 时, 必须使用此技能。
+- **self-improving-agent**
+  - Captures learnings, errors, and corrections to enable continuous improvement. Use when: (1) A command or operation fails unexpectedly, (2) User corrects Claude ('No, that's wrong...', 'Actually...'), (3) User requests a capability that doesn't exist, (4) An external API or tool fails, (5) Claude realizes its knowledge is outdated or incorrect, (6) A better approach is discovered for a recurring task. Also review learnings before major tasks.
+- **skill-finder**
+  - Find, compare, and install agent skills across ClawHub and Skills.sh when the user needs new capabilities, better workflows, stronger tools, or safer alternatives. Use when (1) they ask how to do something, how to improve or automate it, or what to install; (2) a skill could extend the agent, replace a weak manual approach, or close a capability gap; (3) you need the best-fit option, not just a direct answer.
+- **so-native-analysis**
+  - SO原生库分析技能（免费IDA Pro替代）。30种工具覆盖SO基本分析、Flutter专项（SSL绕过/一键APK补丁）、二进制修改、交叉引用分析、高级分析（反编译/调用图/CFG/加密检测/寄存器追踪）。来自1600822305/so-analyzer-mcp。
+- **story**
+  - |
+- **story-cover**
+  - |
+- **story-deslop**
+  - |
+- **story-import**
+  - |
+- **story-long-analyze**
+  - |
+- **story-long-scan**
+  - |
+- **story-long-write**
+  - |
+- **story-review**
+  - |
+- **story-setup**
+  - |
+- **story-short-analyze**
+  - |
+- **story-short-scan**
+  - |
+- **story-short-write**
+  - |
+- **symbolic-execution-tools**
+  - >-
+- **text-to-speech**
+  - Convert text to natural speech with DIA TTS, Kokoro, Chatterbox, and more via inference.sh CLI. Models: DIA TTS (conversational), Kokoro TTS, Chatterbox, Higgs Audio, VibeVoice (podcasts). Capabilities: text-to-speech, voice cloning, multi-speaker dialogue, podcast generation, expressive speech. Use for: voiceovers, audiobooks, podcasts, accessibility, video narration, IVR, voice assistants. Triggers: text to speech, tts, voice generation, ai voice, speech synthesis, voice over, generate speech, ai narrator, voice cloning, text to audio, elevenlabs alternative, voice ai, ai voiceover, speech generator, natural voice
+- **vm-and-bytecode-reverse**
+  - >-
+- **web-api-reverse-engineering**
+  - Use when the goal is API protocol reverse engineering — discovering API endpoints, extracting request/response formats, comparing protocol compatibility (e.g. OpenAI-compatible proxy), building a protocol adapter, or reverse-engineering encrypted API communication (AES-ECB end-to-end encrypted request/response bodies). For JS runtime debugging or parameter signing, use cdp-debug-reverse or js-reverse-engineering instead.
+- **web-api-to-openai-proxy**
+  - 将任意 Web API 逆向并构建 OpenAI 兼容代理服务。通用方法论：协议逆向 → 格式转换 → 流式适配 → 内容过滤 → Tool Call 模拟（prompt engineering / webSearch 自动启用） → Docker 部署 → Hermes/客户端对接。
+- **webpack-unpack**
+  - 提取Webpack打包模块,还原独立可运行的JS代码。触发词: webpack、打包、解包、模块提取、bundle拆分、__webpack_require__、__webpack_modules__、webpackJsonp。当用户需要从Webpack打包后的JS文件中提取特定模块及其依赖、还原可运行代码、或提到bundle/unpack时, 必须使用此技能。
+- **weread-skills**
+  - 微信读书助手 — 搜索书籍、管理书架、查看笔记划线、浏览书评、阅读统计、发现推荐好书
+
+## OpenClaw内置技能 (56个)
+
+- 1password
+- apple-notes
+- apple-reminders
+- bear-notes
+- blogwatcher
+- blucli
+- camsnap
+- canvas
+- clawhub
+- coding-agent
+- diagram-maker
+- discord
+- eightctl
+- gemini
+- gh-issues
+- gifgrep
+- github
+- gog
+- goplaces
+- healthcheck
+- himalaya
+- imsg
+- mcporter
+- meme-maker
+- model-usage
+- nano-pdf
+- node-connect
+- node-inspect-debugger
+- notion
+- obsidian
+- openai-whisper
+- openai-whisper-api
+- openhue
+- oracle
+- ordercli
+- peekaboo
+- python-debugpy
+- sag
+- session-logs
+- sherpa-onnx-tts
+- skill-creator
+- slack
+- songsee
+- sonoscli
+- spike
+- spotify-player
+- summarize
+- taskflow
+- taskflow-inbox-triage
+- things-mac
+- tmux
+- trello
+- video-frames
+- voice-call
+- wacli
+- weather
+- xurl
+
+## ClearMark 项目
+- https://github.com/7452323/ClearMark
+- 抖音/B站/Twitter/Ins/小红书 全平台去水印
+- 签名算法100%原创 | 零浏览器 | 1.4秒
