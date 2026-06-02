@@ -4,15 +4,19 @@ from urllib.parse import urlencode, quote
 from signer import DouyinSigner
 
 
+# 可配置：浏览器刷新时用的抖音短链接，DDOS 时换成当前可用视频
+_DOUYIN_REFRESH_URL = "https://v.douyin.com/iJNjKLm/"
+
+
 class DouyinParser:
     """
     抖音解析器 - 零浏览器模式
-    
+
     日常运行完全无需浏览器：
     1. 加密存储加载Cookie
     2. HTTP 302 提取视频ID（持久连接）
     3. A-Bogus签名直调API
-    
+
     浏览器仅用于Cookie过期时刷新一次。
     """
 
@@ -33,7 +37,9 @@ class DouyinParser:
             sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'cookies'))
             from secure_manager import SecureCookieManager
             self._cookies = SecureCookieManager().get('douyin')
-        except:
+        except ImportError:
+            pass
+        except Exception:
             pass
         return self._cookies
 
@@ -47,18 +53,17 @@ class DouyinParser:
             from secure_manager import SecureCookieManager
             cm = SecureCookieManager()
             existing = cm.get('douyin') or {}
-            if '_placeholder' in existing:
-                existing = {}
             existing.update(cookies)
             cm.set('douyin', existing)
-        except:
+        except Exception:
             pass
 
     async def _get_aweme_id(self, url: str) -> str | None:
         """提取aweme_id - 零浏览器"""
         # 1. URL直取
         m = re.search(r'video/(\d+)', url)
-        if m: return m.group(1)
+        if m:
+            return m.group(1)
 
         # 2. 缓存
         m = re.search(r'v\.douyin\.com/(\w+)', url)
@@ -66,7 +71,7 @@ class DouyinParser:
         if short and short in self._aweme_cache:
             return self._aweme_cache[short]
 
-        # 3. HTTP 302 重定向（持久连接，0.7-1.2s）
+        # 3. HTTP 302 重定向（持久连接）
         http = await self._get_http()
         r = await http.get(url, follow_redirects=False)
         loc = r.headers.get('location', '')
@@ -97,7 +102,7 @@ class DouyinParser:
             if resp.status_code == 200 and len(resp.text) > 100:
                 try:
                     return resp.json()
-                except:
+                except ValueError:
                     return resp.text
         return None
 
@@ -110,7 +115,7 @@ class DouyinParser:
                 user_agent='Mozilla/5.0 (Linux; Android 14) Chrome/130.0.6728.40 Mobile',
                 viewport={'width': 390, 'height': 844}, is_mobile=True, locale='zh-CN')
             page = await ctx.new_page()
-            await page.goto("https://v.douyin.com/LfY3xT6vNKU/", timeout=10000,
+            await page.goto(_DOUYIN_REFRESH_URL, timeout=10000,
                             wait_until='domcontentloaded')
             await page.wait_for_timeout(1000)
             cookies = {c['name']: c['value'] for c in await ctx.cookies()}
@@ -130,14 +135,14 @@ class DouyinParser:
 
             data = await self._call_api(aweme_id)
             if not data:
-                print("🔄 Cookie过期，浏览器刷新...")
+                log = __import__('logging').getLogger('clearmark')
+                log.info("🔄 Cookie过期，浏览器刷新...")
                 await self._refresh_cookies_browser()
                 data = await self._call_api(aweme_id)
             if not data:
                 raise RuntimeError("API调用失败")
 
             if isinstance(data, str):
-                import json
                 data = json.loads(data)
             detail = data.get('aweme_detail', data)
 
@@ -158,6 +163,6 @@ class DouyinParser:
                 r['cover_url'] = cover[-1]
 
         except Exception as e:
-            r['error'] = str(e)
+            r['error'] = f"{type(e).__name__}: {e}"
 
         return r
