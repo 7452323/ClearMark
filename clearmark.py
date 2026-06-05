@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """ClearMark v2 - 全平台去水印，基于 ParseHub 引擎"""
-import os, sys, asyncio, time, re
+import os, sys, asyncio, random, re, yaml
 from pathlib import Path
 
 from parsehub import ParseHub
@@ -9,6 +9,40 @@ from parsehub.types import PostType
 BOT_TOKEN = os.environ.get('BOT_TOKEN', '')
 CHAT_ID = os.environ.get('CHAT_ID', '')
 API_BASE = f'https://api.telegram.org/bot{BOT_TOKEN}'
+HERE = Path(__file__).parent
+
+# 平台ID映射（parsehub 内部的平台id -> 配置里的平台名）
+PLATFORM_MAP = {
+    'douyin':     ['douyin'],
+    'xhs':        ['xiaohongshu', 'xhs'],
+    'twitter':    ['twitter'],
+    'instagram':  ['instagram'],
+    'bilibili':   ['bilibili'],
+    'tiktok':     ['tiktok'],
+    'youtube':    ['youtube'],
+    'kuaishou':   ['kuaishou'],
+    'weibo':      ['weibo'],
+}
+
+
+def load_platform_config() -> dict:
+    path = HERE / 'data' / 'config' / 'platform_config.yaml'
+    if not path.exists():
+        return {}
+    with open(path) as f:
+        data = yaml.safe_load(f) or {}
+    return data.get('platforms', {})
+
+
+def get_cookie(platform_id: str, config: dict) -> str | None:
+    """根据平台ID从配置中取随机Cookie"""
+    names = PLATFORM_MAP.get(platform_id, [])
+    for name in names:
+        pc = config.get(name, {})
+        cookies = pc.get('cookies', [])
+        if cookies:
+            return random.choice(cookies)
+    return None
 
 
 def detect_url(text: str) -> str | None:
@@ -34,9 +68,7 @@ async def tg_send_file(file_path: str, caption: str = ''):
         return
     is_video = ext in ('.mp4', '.mov', '.avi', '.mkv')
     is_photo = ext in ('.jpg', '.jpeg', '.png', '.webp', '.heic')
-    if not is_video and not is_photo:
-        is_photo = True
-    endpoint = 'sendVideo' if is_video else 'sendMediaGroup' if not is_video else 'sendPhoto'
+    endpoint = 'sendVideo' if is_video else 'sendPhoto'
     async with httpx.AsyncClient(timeout=120) as c:
         with open(file_path, 'rb') as f:
             if is_video:
@@ -59,6 +91,8 @@ async def main():
         print('环境变量:')
         print('  BOT_TOKEN      - Telegram Bot Token（可选，有则自动发送）')
         print('  CHAT_ID        - 接收消息的 Chat ID')
+        print()
+        print('Cookie配置: data/config/platform_config.yaml')
         sys.exit(1)
 
     text = ' '.join(sys.argv[1:])
@@ -67,11 +101,21 @@ async def main():
         print('❌ 未识别到链接')
         sys.exit(1)
 
+    pl_cfg = load_platform_config()
     print(f'🔍 解析: {url}')
     hub = ParseHub()
 
+    # 自动识别平台并注入Cookie
     try:
-        result = await hub.parse(url)
+        p = hub.get_platform(url)
+        cookie = get_cookie(p.id, pl_cfg)
+        if cookie:
+            print(f'  使用 {p.id} Cookie')
+    except Exception:
+        cookie = None
+
+    try:
+        result = await hub.parse(url, cookie=cookie)
     except Exception as e:
         msg = f'❌ 解析失败: {e}'
         print(msg)
@@ -82,11 +126,13 @@ async def main():
     title = result.title or result.content or '(无标题)'
     print(f'📝 {title}')
 
-    # 直接下载并发送
     if BOT_TOKEN:
         dl = await result.download('/tmp/clearmark_v2')
-        for m in dl.media:
-            await tg_send_file(str(m.path), title[:100])
+        from parsehub.types import VideoRef, MediaFile
+        media_list = dl.media if isinstance(dl.media, list) else [dl.media]
+        for m in media_list:
+            p = m.path if isinstance(m, MediaFile) else m
+            await tg_send_file(str(p), title[:100])
         print('✅ 已发送到 Telegram')
     else:
         print()
@@ -99,16 +145,12 @@ async def main():
 
         if result.type == PostType.VIDEO:
             print(f'🎬 视频')
-            for m in media_list:
-                print(f'   {m.url}')
         elif result.type == PostType.IMAGE:
             print(f'📸 图片({len(media_list)}张)')
-            for m in media_list:
-                print(f'   {m.url}')
         else:
             print(f'📎 链接')
-            for m in media_list:
-                print(f'   {m.url}')
+        for m in media_list:
+            print(f'   {m.url}')
         print()
         print('💡 设置 BOT_TOKEN + CHAT_ID 即可自动发送到 Telegram')
 

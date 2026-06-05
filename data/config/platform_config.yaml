@@ -1,0 +1,12 @@
+# 各平台 Cookie/代理配置
+# 参考: https://github.com/z-mio/parse_hub_bot
+platforms:
+  douyin:
+    cookies:
+      - "__ac_nonce=xxx; ttwid=xxx; passport_csrf_token=xxx"
+  twitter:
+    cookies:
+      - "auth_token=xxx; ct0=xxx"
+  xiaohongshu:
+    cookies:
+      - "a1=xxx; web_session=xxx"
