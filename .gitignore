@@ -2,9 +2,4 @@ __pycache__/
 *.pyc
 .env
 .DS_Store
-node_modules/
-
-# Cookie加密存储（敏感，禁止提交）
-cookies/.cookie_key
-cookies/store.enc
-cookies/cookies.json
+data/config/platform_config.yaml
