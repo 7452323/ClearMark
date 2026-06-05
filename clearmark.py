@@ -90,13 +90,24 @@ async def main():
         print('✅ 已发送到 Telegram')
     else:
         print()
+        from parsehub.types import VideoRef, ImageRef, LivePhotoRef
+        media_list = []
+        if isinstance(result.media, (VideoRef, ImageRef, LivePhotoRef)):
+            media_list = [result.media]
+        elif result.media:
+            media_list = list(result.media)
+
         if result.type == PostType.VIDEO:
             print(f'🎬 视频')
-            for m in result.media:
+            for m in media_list:
                 print(f'   {m.url}')
         elif result.type == PostType.IMAGE:
-            print(f'📸 图片({len(result.media)}张)')
-            for m in result.media:
+            print(f'📸 图片({len(media_list)}张)')
+            for m in media_list:
+                print(f'   {m.url}')
+        else:
+            print(f'📎 链接')
+            for m in media_list:
                 print(f'   {m.url}')
         print()
         print('💡 设置 BOT_TOKEN + CHAT_ID 即可自动发送到 Telegram')
